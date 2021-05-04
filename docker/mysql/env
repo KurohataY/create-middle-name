@@ -1,0 +1,5 @@
+TZ=Asia/Tokyo
+MYSQL_DATABASE=middle_name_db
+MYSQL_USER=middle_name
+MYSQL_PASSWORD=middle_name_password
+MYSQL_ALLOW_EMPTY_PASSWORD=yes

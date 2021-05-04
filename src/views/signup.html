@@ -1,0 +1,26 @@
+{{ template "head" }}
+<body>
+  {{ template "nav" }}
+  <main>
+    <article>
+      <div class="is-mobile">
+        <div class="container">
+          <p>{{.err}}</p>
+          <form class="form" action="/signup" method="post">
+            <label>Username</label><br>
+            <input type="text" name="username" class="input is-info form-group is-rounded"><br>
+            <label>E-mail</label><br>
+            <input type="text" name="emailaddress" class="input is-info form-group is-rounded"><br>
+            <label>Password</label><br>
+            <input type="password" name="password" class="input is-info form-group is-rounded"><br>
+            <label>Password Confirmation</label><br>
+            <input type="password" name="passwordconfirmation" class="input is-info form-group is-rounded"><br>
+            <input type="submit" value="送信" class="button is-primary">
+            <div class="change_page_link">
+              <label>または</label><a href="/login">ログイン</a>
+            </div>
+          </form>
+    </article>
+  </main>
+</body>
+{{ template "foot" }}

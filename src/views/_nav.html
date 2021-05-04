@@ -1,0 +1,24 @@
+{{ define "nav" }}
+<header>
+  <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <div class="navbar-item">
+        <img src="./store/images/JapaneseMiddleName.png" width="112" height="28">
+      </div>
+      <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+
+    <div id="navbarBasicExample" class="navbar-menu">
+      <div class="navbar-start">
+        <a href="home" class="navbar-item">トップ</a>
+        <a href="signup" class="navbar-item">新規登録</a>
+        <a href="login" class="navbar-item">ログイン</a>
+      </div>
+    </div>
+  </nav>
+</header>
+{{ end }}

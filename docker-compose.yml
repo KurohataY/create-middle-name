@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  app:
+    container_name: app
+    build:
+      context: .
+      dockerfile: ./docker/go/Dockerfile
+    ports:
+      - 8080:8080
+    links:
+      - mysql
+    tty:
+      true
+    volumes:
+      - ./src:/src
+
+  mysql:
+    container_name: mysql
+    build: ./docker/mysql/
+    hostname: mysql
+    platform: linux/amd64
+    ports:
+      - "3306:3306"
+    env_file:
+      - ./docker/mysql/env
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci --skip-character-set-client-handshake
+    volumes:
+      - "./mysql_data/mysql:/var/lib/mysql"
+      - "./docker/mysql/my.conf:/etc/mysql/my.conf"
+      - "./docker/mysql/init/:/docker-entrypoint-initdb.d"
