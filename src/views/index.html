@@ -1,34 +1,59 @@
-<!DOCTYPE html>
-<html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>一覧ページ</title>
-  </head>
-  <body>
-    <header>
-      <h1>つぶやき</h1>
-    </header>
-    <div class="wrap">
-      <div class="input">
-        <p>{{.err}}</p>
-        <form action="/new" method="post">
-          <p>いま思っていること :<input type="text" name="content" size="30" placeholder="つぶやくこと"/></p>
-          <p><input type="submit" value="つぶやく" /></p>
-        </form>
+{{ template "head" }}
+<body>
+  {{ template "nav" }}
+  <main>
+    <div class="body" style="margin-top: 60px;">
+      <div class="tile">
+        <div class="tile is-parent is-vertical ">
+          <article class="tile is-child notification text-center is-6">
+            <p class="title">{{.uuid}}</p>
+            <p class="title">{{.name}}</p>
+            <p class="title">{{.email}}</p>
+            <p class="subtitle">今日は何をされますか？<br>メニューバー からお選びください！</p>
+          </article>
+        </div>
       </div>
-      <div class="indexGet">
-        <ul>
-          {{range.tweets}}
-          <li>
-            {{.Content}}
-            <label><a href="/detail/{{.ID}}">編集</a></label>
-            <label><a href="/delete_check/{{.ID}}">削除</a></label>
-          </li>
+
+      <div class="text-center">
+        <p class="subtitle text-color is-3">今までの作成履歴はこちら！</p>
+        
+        <table class="table" style="text-align: center; margin: 0 auto; width: 80vw">
+          <thead>
+            <tr>
+              <th><abbr title="Position">ID</abbr></th>
+              <th>氏</th>
+              <th><abbr title="Played">名前</abbr></th>
+              <th><abbr title="Won">カバネ</abbr></th>
+              <th><abbr title="Drawn">俗名</abbr></th>
+              <th><abbr title="Lost">名字</abbr></th>
+            </tr>
+          </thead>
+          <tfoot>
+            <tr>
+              <th><abbr title="Position">ID</abbr></th>
+              <th>氏</th>
+              <th><abbr title="Played">名前</abbr></th>
+              <th><abbr title="Won">カバネ</abbr></th>
+              <th><abbr title="Drawn">俗名</abbr></th>
+              <th><abbr title="Lost">名字</abbr></th>
+            </tr>
+          </tfoot>
+          {{range .middle}}
+              <tbody>
+                <tr>
+                  <th>{{.Id}}</th>
+                  <th>{{.Mr}}</th>
+                  <th>{{.LName}}</th>
+                  <th>{{.SurName}}</th>
+                  <th>{{.CommonName}}</th>
+                  <th>{{.FName}}</th>
+                </tr>
+              </tbody>
           {{end}}
-        </ul>
+        </table>
       </div>
     </div>
-  </body>
-</html>
+  </main>
+  {{ template "footer" }}
+</body>
+{{ template "foot" }}
