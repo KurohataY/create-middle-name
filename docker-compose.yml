@@ -1,13 +1,14 @@
 version: '3'
 
 services:
-  app:
-    container_name: app
+  middle-name:
+    container_name: middle-name
     build:
       context: .
       dockerfile: ./docker/go/Dockerfile
     ports:
       - 8080:8080
+      - 6060:6060
     links:
       - mysql
     tty:

@@ -1,7 +1,7 @@
 package plugins
 
 import (
-  "golang.org/x/crypto/bcrypt"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // PasswordEncrypt パスワードをhash化
