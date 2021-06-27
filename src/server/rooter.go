@@ -40,6 +40,7 @@ func NewRouter() *gin.Engine {
 			userId := fmt.Sprintf("%v", session.Get("Uuid"))
 			// LoginInfo = session.Get("Uuid")
 			getUser := funcDB.GetUserFromUuid(userId)
+
 			fmt.Fprintf(os.Stdout, "%v", userId)
 			fmt.Fprint(os.Stdout, "ペルソナ！")
 			c.HTML(http.StatusOK, "index.html", gin.H{
@@ -47,7 +48,7 @@ func NewRouter() *gin.Engine {
 				"uuid":   userId,
 				"name":   getUser.Username,
 				"email":  getUser.Email,
-				"middle": []MiddleName{{1, "a", "c_mika", "b", "d", "d"}},
+				"middle": []model.CreateMiddleName{{1, "a", "c_mika", "b", "d", "d"}},
 				// "name":
 			})
 		})
@@ -60,19 +61,19 @@ func NewRouter() *gin.Engine {
 	})
 
 	//登録
-	router.POST("/new", func(c *gin.Context) {
-		var form model.Tweet
-		// ここがバリデーション部分
-		if err := c.Bind(&form); err != nil {
-			tweets := funcDB.DbGetAll()
-			c.HTML(http.StatusBadRequest, "index.html", gin.H{"tweets": tweets, "err": err})
-			c.Abort()
-		} else {
-			content := c.PostForm("content")
-			funcDB.DbInsert(content)
-			c.Redirect(302, "/")
-		}
-	})
+	// router.POST("/new", func(c *gin.Context) {
+	// 	var form model.Tweet
+	// 	// ここがバリデーション部分
+	// 	if err := c.Bind(&form); err != nil {
+	// 		tweets := funcDB.DbGetAll()
+	// 		c.HTML(http.StatusBadRequest, "index.html", gin.H{"tweets": tweets, "err": err})
+	// 		c.Abort()
+	// 	} else {
+	// 		content := c.PostForm("content")
+	// 		funcDB.DbInsert(content)
+	// 		c.Redirect(302, "/")
+	// 	}
+	// })
 
 	//投稿詳細
 	router.GET("/detail/:id", func(c *gin.Context) {

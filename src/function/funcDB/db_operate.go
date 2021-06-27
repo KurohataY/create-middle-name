@@ -44,8 +44,12 @@ func DbInit() {
 
 	// コネクション解放解放
 	defer db.Close()
-	db.AutoMigrate(&model.Tweet{}) //構造体に基づいてテーブルを作成
-	db.AutoMigrate(&model.User{})  //構造体に基づいてテーブルを作成
+	db.AutoMigrate(&model.Tweet{})                //構造体に基づいてテーブルを作成
+	db.AutoMigrate(&model.User{})                 //構造体に基づいてテーブルを作成
+	db.AutoMigrate(&model.CreateMiddleNameInit{}) //構造体に基づいてテーブルを作成
+	db.AutoMigrate(&model.Mr{})                   //構造体に基づいてテーブルを作成
+	db.AutoMigrate(&model.SN{})                   //構造体に基づいてテーブルを作成
+	db.AutoMigrate(&model.CN{})                   //構造体に基づいてテーブルを作成
 }
 
 // データインサート処理
