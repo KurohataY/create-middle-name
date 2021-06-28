@@ -47,9 +47,40 @@ func DbInit() {
 	db.AutoMigrate(&model.Tweet{})                //構造体に基づいてテーブルを作成
 	db.AutoMigrate(&model.User{})                 //構造体に基づいてテーブルを作成
 	db.AutoMigrate(&model.CreateMiddleNameInit{}) //構造体に基づいてテーブルを作成
-	db.AutoMigrate(&model.Mr{})                   //構造体に基づいてテーブルを作成
-	db.AutoMigrate(&model.SN{})                   //構造体に基づいてテーブルを作成
-	db.AutoMigrate(&model.CN{})                   //構造体に基づいてテーブルを作成
+
+	// テーブルの初期化
+	db.Exec("DROP TABLE mrs")
+	db.Exec("DROP TABLE sns")
+	db.Exec("DROP TABLE cns")
+
+	db.AutoMigrate(&model.Mr{}) //構造体に基づいてテーブルを作成
+	db.AutoMigrate(&model.SN{}) //構造体に基づいてテーブルを作成
+	db.AutoMigrate(&model.CN{}) //構造体に基づいてテーブルを作成
+	DbInsertSeed()
+}
+
+func DbInsertSeed() {
+	db := gormConnect()
+
+	defer db.Close()
+	// Insert処理
+	// TODO なんとかしてまとめたいなぁ〜
+	mr := []string{"平", "源"}
+	for _, m := range mr {
+		db.Create(&model.Mr{Mr: m})
+	}
+
+	surname := []string{"朝臣", "臣", "国造", "県主", "和気", "稲置", "連", "直", "首", "史", "村主", "真人", "宿禰", "忌寸", "道師"}
+	for _, s := range surname {
+		db.Create(&model.SN{SurName: s})
+	}
+
+	commonname := []string{"一朗", "二郎", "三郎", "四郎", "五郎", "六郎", "七郎", "八郎", "九郎", "十朗", "十四郎", "二郎三郎"}
+	for _, c := range commonname {
+		db.Create(&model.CN{CommonName: c})
+	}
+	// TODO なんとかしてまとめたいなぁ〜
+
 }
 
 // データインサート処理
