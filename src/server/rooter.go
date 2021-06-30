@@ -37,16 +37,13 @@ func NewRouter() *gin.Engine {
 		login.GET("/index", func(c *gin.Context) {
 			session := sessions.Default(c)
 			userId := fmt.Sprintf("%v", session.Get("Uuid"))
-			// LoginInfo = session.Get("Uuid")
 			getUser := funcDB.GetUserFromUuid(userId)
 
 			c.HTML(http.StatusOK, "index.html", gin.H{
-				// htmlに渡す変数を定義
 				"uuid":   userId,
 				"name":   getUser.Username,
 				"email":  getUser.Email,
 				"middle": []model.CreatedMiddleName{{1, "a", "c_mika", "b", "d", "d"}},
-				// "name":
 			})
 		})
 	}
