@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 
 	"example.com/m/v2/function/encryption"
@@ -54,8 +53,8 @@ func NewRouter() *gin.Engine {
 
 	//トップ画面
 	router.GET("/", func(c *gin.Context) {
-		tweets := funcDB.DbGetAll()
-		c.HTML(200, "home.html", gin.H{"tweets": tweets})
+		// tweets := funcDB.DbGetAll()
+		c.HTML(200, "home.html", gin.H{})
 	})
 
 	//登録
@@ -74,15 +73,15 @@ func NewRouter() *gin.Engine {
 	// })
 
 	//投稿詳細
-	router.GET("/detail/:id", func(c *gin.Context) {
-		n := c.Param("id")
-		id, err := strconv.Atoi(n)
-		if err != nil {
-			panic(err)
-		}
-		tweet := funcDB.DbGetOne(id)
-		c.HTML(200, "detail.html", gin.H{"tweet": tweet})
-	})
+	// router.GET("/detail/:id", func(c *gin.Context) {
+	// 	n := c.Param("id")
+	// 	id, err := strconv.Atoi(n)
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// 	tweet := funcDB.DbGetOne(id)
+	// 	c.HTML(200, "detail.html", gin.H{"tweet": tweet})
+	// })
 
 	//更新
 	// router.POST("/update/:id", func(c *gin.Context) {
@@ -97,27 +96,27 @@ func NewRouter() *gin.Engine {
 	// })
 
 	//削除確認
-	router.GET("/delete_check/:id", func(c *gin.Context) {
-		n := c.Param("id")
-		id, err := strconv.Atoi(n)
-		if err != nil {
-			panic("ERROR")
-		}
-		tweet := funcDB.DbGetOne(id)
-		c.HTML(200, "delete.html", gin.H{"tweet": tweet})
-	})
+	// router.GET("/delete_check/:id", func(c *gin.Context) {
+	// 	n := c.Param("id")
+	// 	id, err := strconv.Atoi(n)
+	// 	if err != nil {
+	// 		panic("ERROR")
+	// 	}
+	// 	tweet := funcDB.DbGetOne(id)
+	// 	c.HTML(200, "delete.html", gin.H{"tweet": tweet})
+	// })
 
 	//削除
-	router.POST("/delete/:id", func(c *gin.Context) {
-		n := c.Param("id")
-		id, err := strconv.Atoi(n)
-		if err != nil {
-			panic("ERROR")
-		}
-		funcDB.DbDelete(id)
-		c.Redirect(302, "/")
+	// router.POST("/delete/:id", func(c *gin.Context) {
+	// 	n := c.Param("id")
+	// 	id, err := strconv.Atoi(n)
+	// 	if err != nil {
+	// 		panic("ERROR")
+	// 	}
+	// 	funcDB.DbDelete(id)
+	// 	c.Redirect(302, "/")
 
-	})
+	// })
 
 	// ユーザーログイン画面
 	router.GET("/login", func(c *gin.Context) {
