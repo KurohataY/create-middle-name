@@ -41,14 +41,12 @@ func NewRouter() *gin.Engine {
 			// LoginInfo = session.Get("Uuid")
 			getUser := funcDB.GetUserFromUuid(userId)
 
-			fmt.Fprintf(os.Stdout, "%v", userId)
-			fmt.Fprint(os.Stdout, "ペルソナ！")
 			c.HTML(http.StatusOK, "index.html", gin.H{
 				// htmlに渡す変数を定義
 				"uuid":   userId,
 				"name":   getUser.Username,
 				"email":  getUser.Email,
-				"middle": []model.CreateMiddleName{{1, "a", "c_mika", "b", "d", "d"}},
+				"middle": []model.CreatedMiddleName{{1, "a", "c_mika", "b", "d", "d"}},
 				// "name":
 			})
 		})
