@@ -1,0 +1,31 @@
+{{ template "head" }}
+
+<body>
+    {{ template "user_nav" }}
+    <main>
+        <div>ミドルネーム作成</div>
+
+        <article>
+            <div class="is-mobile">
+                <div class="container">
+                    <p>{{.err}}</p>
+                    <form class="form" action="/create" method="post">
+                        <div class="form-group">
+                            <input type="text" name="lname" placeholder="名字を入力してね！"
+                                class="input is-info form-group is-rounded"><br>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="fname" placeholder="下の名前を入力してね！"
+                                class="input is-info form-group is-rounded"><br>
+                        </div>
+                        <input type="submit" value="送信" class="button is-primary">
+                    </form>
+                </div>
+            </div>
+        </article>
+        </div>
+
+    </main>
+    {{ template "footer" }}
+</body>
+{{ template "foot" }}
