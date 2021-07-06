@@ -1,15 +1,16 @@
 package model
 
-import (
-	"github.com/jinzhu/gorm"
-)
+import "time"
 
 type CreatedMiddleNames struct {
-	gorm.Model
+	ID         uint `gorm:"primary_key"`
 	Mr         string
 	LName      string
 	SurName    string
 	CommonName string
 	FName      string
 	UserId     string
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	DeletedAt  *time.Time `sql:"index"`
 }
