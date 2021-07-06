@@ -39,13 +39,45 @@ func NewRouter() *gin.Engine {
 			userId := fmt.Sprintf("%v", session.Get("Uuid"))
 			getUser := funcDB.GetUserFromUuid(userId)
 
+			middleNames := funcDB.DbGetCreatedMiddleNames(userId)
+
 			c.HTML(http.StatusOK, "index.html", gin.H{
-				"uuid":   userId,
 				"name":   getUser.Username,
-				"email":  getUser.Email,
-				"middle": []model.CreatedMiddleName{{1, "a", "c_mika", "b", "d", "d"}},
+				"middle": middleNames,
 			})
 		})
+
+		// ユーザー登録画面
+		router.GET("/create", func(c *gin.Context) {
+			c.HTML(200, "create.html", gin.H{})
+		})
+
+		// ミッドルネーム作成
+		router.POST("/create", func(c *gin.Context) {
+			session := sessions.Default(c)
+			userId := fmt.Sprintf("%v", session.Get("Uuid"))
+
+			var form model.CreatedMiddleNames
+			// ここがバリデーション部分
+			if err := c.Bind(&form); err != nil {
+				middleNames := funcDB.DbGetCreatedMiddleNames(userId)
+				c.HTML(http.StatusBadRequest, "create.html", gin.H{"middleNames": middleNames, "err": err})
+				c.Abort()
+			} else {
+				// content := c.PostForm("content")
+				mr := funcDB.DBGetRandomMrData().Mr
+				print(mr)
+				lName := c.PostForm("lname")
+				surName := funcDB.DBGetRandomMrData().Mr
+				commonName := funcDB.DBGetRandomMrData().Mr
+				fName := c.PostForm("fname")
+				print(mr)
+				print(commonName)
+				funcDB.DbMiddleNameInsert(mr, lName, surName, commonName, fName, userId)
+				c.Redirect(302, "/user/index")
+			}
+		})
+
 	}
 
 	//トップ画面

@@ -6,7 +6,7 @@ import (
 
 	"example.com/m/v2/model"
 	plugins "example.com/m/v2/plugins/crypto"
-	_ "github.com/go-sql-driver/mysql" //直接的な記述が無いが、インポートしたいものに対しては"_"を頭につける決まり
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"github.com/joho/godotenv"
 )
@@ -46,30 +46,32 @@ func DbInit() {
 
 	// コネクション解放解放
 	defer db.Close()
-	db.AutoMigrate(&model.User{})                 //構造体に基づいてテーブルを作成
-	db.AutoMigrate(&model.CreateMiddleNameInit{}) //構造体に基づいてテーブルを作成
+	db.AutoMigrate(&model.User{})
+	db.AutoMigrate(&model.CreatedMiddleNames{})
 
 	// テーブルの初期化
 	db.Exec("DROP TABLE mrs")
 	db.Exec("DROP TABLE sns")
 	db.Exec("DROP TABLE cns")
 
-	db.AutoMigrate(&model.Mr{}) //構造体に基づいてテーブルを作成
-	db.AutoMigrate(&model.SN{}) //構造体に基づいてテーブルを作成
-	db.AutoMigrate(&model.CN{}) //構造体に基づいてテーブルを作成
+	db.AutoMigrate(&model.Mr{})
+	db.AutoMigrate(&model.SN{})
+	db.AutoMigrate(&model.CN{})
 
 	// DB初期値の挿入
 	DbInsertSeed()
 }
 
 // データインサート処理
-// func DbInsert(content string) {
-// 	db := gormConnect()
-
-// 	defer db.Close()
-// 	// Insert処理
-// 	db.Create(&model.Tweet{Content: content})
-// }
+func DbMiddleNameInsert(mr string, lName string, sName string, cName string, fName string, userId string) []error {
+	db := gormConnect()
+	defer db.Close()
+	// Insert処理
+	if err := db.Create(&model.CreatedMiddleNames{Mr: mr, LName: lName, SurName: sName, CommonName: cName, FName: fName, UserId: userId}).GetErrors(); err != nil {
+		return err
+	}
+	return nil
+}
 
 //DB更新
 func DbSessionUpdate(password string, session string) {
@@ -82,15 +84,29 @@ func DbSessionUpdate(password string, session string) {
 }
 
 // 全件取得
-// func DbGetAll() []model.Tweet {
-// 	db := gormConnect()
+func DbGetCreatedMiddleNames(userId string) []model.CreatedMiddleNames {
+	db := gormConnect()
 
-// 	defer db.Close()
-// 	var tweets []model.Tweet
-// 	// FindでDB名を指定して取得した後、orderで登録順に並び替え
-// 	db.Order("created_at desc").Find(&tweets)
-// 	return tweets
-// }
+	defer db.Close()
+	var createdMiddleNames []model.CreatedMiddleNames
+
+	db.Where("user_id =  ?", userId).Find(&createdMiddleNames)
+	print(fmt.Sprintf("%v", createdMiddleNames))
+	return createdMiddleNames
+}
+
+func DBGetRandomMrData() model.Mr {
+	db := gormConnect()
+
+	defer db.Close()
+	var mr model.Mr
+	// db.Raw("SELECT * FROM mrs ORDER BY RAND() LIMIT 1").Find(&mr)
+	// db.Limit(1).Offset(5).Find(&users)
+	db.Order("RAND()").Find(&mr)
+	// SELECT * FROM users ORDER BY age desc, name;
+
+	return mr
+}
 
 // //DB一つ取得
 // func DbGetOne(id int) model.Tweet {

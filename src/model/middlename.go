@@ -4,20 +4,12 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type CreateMiddleNameInit struct {
+type CreatedMiddleNames struct {
 	gorm.Model
 	Mr         string
 	LName      string
 	SurName    string
 	CommonName string
 	FName      string
-}
-
-type CreatedMiddleName struct {
-	Id         int
-	Mr         string
-	LName      string
-	SurName    string
-	CommonName string
-	FName      string
+	UserId     string
 }
