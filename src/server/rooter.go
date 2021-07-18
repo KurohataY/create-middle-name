@@ -71,15 +71,12 @@ func NewRouter() *gin.Engine {
 					c.HTML(http.StatusBadRequest, "create.html", gin.H{"middleNames": middleNames, "err": err})
 					c.Abort()
 				} else {
-					// content := c.PostForm("content")
 					mr := funcDB.DBGetRandomMrData().Mr
-					print(mr)
 					lName := c.PostForm("lname")
 					surName := funcDB.DBGetRandomMrData().Mr
 					commonName := funcDB.DBGetRandomMrData().Mr
 					fName := c.PostForm("fname")
-					print(mr)
-					print(commonName)
+
 					funcDB.DbMiddleNameInsert(mr, lName, surName, commonName, fName, userId)
 					c.Redirect(302, "/app/middle_name/user/index")
 				}
@@ -87,27 +84,21 @@ func NewRouter() *gin.Engine {
 
 		}
 
-		//トップ画面
 		router.GET("/", func(c *gin.Context) {
-			// tweets := funcDB.DbGetAll()
 			c.HTML(200, "home.html", gin.H{})
 		})
 
-		// ユーザーログイン画面
 		router.GET("/login", func(c *gin.Context) {
 			c.HTML(200, "login.html", gin.H{})
 		})
 
-		// ユーザーログイン
 		router.POST("/login", func(c *gin.Context) {
 
-			// フォームから取得したユーザーパスワード
 			formPassword := c.PostForm("password")
-			// DBから取得したユーザーパスワード(Hash)
 			formName := c.PostForm("username")
 			dbPassword := funcDB.GetUser(formName).Password
 			dbUserUuid := funcDB.GetUser(formName).UserUUID
-			// ユーザーパスワードの比較
+
 			if err := plugins.CompareHashAndPassword(dbPassword, formPassword); err != nil {
 				log.Println("login false")
 				c.HTML(http.StatusBadRequest, "login.html", gin.H{"err": "ログインできませんでした。"})
@@ -132,7 +123,6 @@ func NewRouter() *gin.Engine {
 				session := sessions.Default(c)
 				session.Set("UserJWT", tokenString)
 				session.Set("Uuid", dbUserUuid)
-				fmt.Print(dbUserUuid)
 				session.Save()
 
 				text := encryption.Compress(tokenString)
