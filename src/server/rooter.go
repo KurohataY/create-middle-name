@@ -21,224 +21,174 @@ import (
 var LoginInfo interface{}
 
 func NewRouter() *gin.Engine {
-	router := gin.Default()
-	router.LoadHTMLGlob("views/*.html")
+	// リリースモード
+	// gin.SetMode(gin.ReleaseMode)
+
+	routerGlobal := gin.Default()
+
+	routerGlobal.LoadHTMLGlob("views/*.html")
 	// router.LoadHTMLGlob("views/user/*.html")
-	router.Static("/store", "./store")
-	router.Static("/assets", "./assets")
 
-	store := cookie.NewStore([]byte("secret"))
-	router.Use(sessions.Sessions("mysession", store))
-
-	login := router.Group("/user")
-	login.Use(sessionCheck())
+	router := routerGlobal.Group("app/middle_name")
 	{
-		//一覧
-		login.GET("/index", func(c *gin.Context) {
-			session := sessions.Default(c)
-			userId := fmt.Sprintf("%v", session.Get("Uuid"))
-			getUser := funcDB.GetUserFromUuid(userId)
+		router.Static("/store", "./store")
+		router.Static("/assets", "./assets")
 
-			middleNames := funcDB.DbGetCreatedMiddleNames(userId)
+		store := cookie.NewStore([]byte("secret"))
+		router.Use(sessions.Sessions("mysession", store))
 
-			c.HTML(http.StatusOK, "index.html", gin.H{
-				"name":   getUser.Username,
-				"middle": middleNames,
+		login := router.Group("/user")
+		login.Use(sessionCheck())
+		{
+			//一覧
+			login.GET("/index", func(c *gin.Context) {
+				session := sessions.Default(c)
+				userId := fmt.Sprintf("%v", session.Get("Uuid"))
+				getUser := funcDB.GetUserFromUuid(userId)
+
+				middleNames := funcDB.DbGetCreatedMiddleNames(userId)
+
+				c.HTML(http.StatusOK, "index.html", gin.H{
+					"name":   getUser.Username,
+					"middle": middleNames,
+				})
 			})
+
+			// ユーザー登録画面
+			login.GET("/create", func(c *gin.Context) {
+				c.HTML(200, "create.html", gin.H{})
+			})
+
+			// ミッドルネーム作成
+			login.POST("/create", func(c *gin.Context) {
+				session := sessions.Default(c)
+				userId := fmt.Sprintf("%v", session.Get("Uuid"))
+
+				var form model.CreatedMiddleNames
+				// ここがバリデーション部分
+				if err := c.Bind(&form); err != nil {
+					middleNames := funcDB.DbGetCreatedMiddleNames(userId)
+					c.HTML(http.StatusBadRequest, "create.html", gin.H{"middleNames": middleNames, "err": err})
+					c.Abort()
+				} else {
+					// content := c.PostForm("content")
+					mr := funcDB.DBGetRandomMrData().Mr
+					print(mr)
+					lName := c.PostForm("lname")
+					surName := funcDB.DBGetRandomMrData().Mr
+					commonName := funcDB.DBGetRandomMrData().Mr
+					fName := c.PostForm("fname")
+					print(mr)
+					print(commonName)
+					funcDB.DbMiddleNameInsert(mr, lName, surName, commonName, fName, userId)
+					c.Redirect(302, "/app/middle_name/user/index")
+				}
+			})
+
+		}
+
+		//トップ画面
+		router.GET("/", func(c *gin.Context) {
+			// tweets := funcDB.DbGetAll()
+			c.HTML(200, "home.html", gin.H{})
+		})
+
+		// ユーザーログイン画面
+		router.GET("/login", func(c *gin.Context) {
+			c.HTML(200, "login.html", gin.H{})
+		})
+
+		// ユーザーログイン
+		router.POST("/login", func(c *gin.Context) {
+
+			// フォームから取得したユーザーパスワード
+			formPassword := c.PostForm("password")
+			// DBから取得したユーザーパスワード(Hash)
+			formName := c.PostForm("username")
+			dbPassword := funcDB.GetUser(formName).Password
+			dbUserUuid := funcDB.GetUser(formName).UserUUID
+			// ユーザーパスワードの比較
+			if err := plugins.CompareHashAndPassword(dbPassword, formPassword); err != nil {
+				log.Println("login false")
+				c.HTML(http.StatusBadRequest, "login.html", gin.H{"err": "ログインできませんでした。"})
+				c.Abort()
+			} else {
+				log.Println("login success")
+
+				// headerのセット
+				token := jwt.New(jwt.SigningMethodHS256)
+
+				// claimsのセット
+				claims := token.Claims.(jwt.MapClaims)
+				claims["admin"] = true
+				claims["sub"] = dbUserUuid
+				claims["name"] = formName
+				claims["iat"] = time.Now()
+				claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+
+				// 電子署名
+				tokenString, _ := token.SignedString([]byte(os.Getenv("SIGNINGKEY")))
+
+				session := sessions.Default(c)
+				session.Set("UserJWT", tokenString)
+				session.Set("Uuid", dbUserUuid)
+				fmt.Print(dbUserUuid)
+				session.Save()
+
+				text := encryption.Compress(tokenString)
+
+				funcDB.DbSessionUpdate(dbPassword, text)
+
+				c.Redirect(302, "/app/middle_name/user/index")
+			}
 		})
 
 		// ユーザー登録画面
-		router.GET("/create", func(c *gin.Context) {
-			c.HTML(200, "create.html", gin.H{})
+		router.GET("/signup", func(c *gin.Context) {
+			c.HTML(200, "signup.html", gin.H{})
 		})
 
-		// ミッドルネーム作成
-		router.POST("/create", func(c *gin.Context) {
-			session := sessions.Default(c)
-			userId := fmt.Sprintf("%v", session.Get("Uuid"))
-
-			var form model.CreatedMiddleNames
-			// ここがバリデーション部分
+		// ユーザー登録
+		router.POST("/signup", func(c *gin.Context) {
+			var form model.User
 			if err := c.Bind(&form); err != nil {
-				middleNames := funcDB.DbGetCreatedMiddleNames(userId)
-				c.HTML(http.StatusBadRequest, "create.html", gin.H{"middleNames": middleNames, "err": err})
+				log.Print(err)
+				c.HTML(http.StatusBadRequest, "signup.html", gin.H{"err": err})
 				c.Abort()
 			} else {
-				// content := c.PostForm("content")
-				mr := funcDB.DBGetRandomMrData().Mr
-				print(mr)
-				lName := c.PostForm("lname")
-				surName := funcDB.DBGetRandomMrData().Mr
-				commonName := funcDB.DBGetRandomMrData().Mr
-				fName := c.PostForm("fname")
-				print(mr)
-				print(commonName)
-				funcDB.DbMiddleNameInsert(mr, lName, surName, commonName, fName, userId)
-				c.Redirect(302, "/user/index")
+				username := c.PostForm("username")
+				password := c.PostForm("password")
+				email := c.PostForm("email")
+				userid := uuid.New().String()
+				session := "NoLogin"
+				formStruct := model.User{
+					Username: username,
+					Password: password,
+					Email:    email,
+					Session:  session,
+				}
+				if ok, err := formStruct.Validate(); !ok {
+					log.Print(err)
+					c.HTML(http.StatusBadRequest, "signup.html", gin.H{"err": err})
+					c.Abort()
+				}
+				if err := funcDB.CreateUser(userid, username, password, email, session); len(err) != 0 {
+					log.Print("同じユーザーが存在します")
+					log.Print(len(err))
+					log.Print(err)
+					c.HTML(http.StatusBadRequest, "signup.html", gin.H{"err": "同じユーザーが存在します"})
+					c.Abort()
+				}
+				c.Redirect(302, "/login")
 			}
 		})
 
 	}
 
-	//トップ画面
-	router.GET("/", func(c *gin.Context) {
-		// tweets := funcDB.DbGetAll()
-		c.HTML(200, "home.html", gin.H{})
-	})
+	routerGlobal.Run(":8001")
+	// routerGlobal.Run()
 
-	//登録
-	// router.POST("/new", func(c *gin.Context) {
-	// 	var form model.Tweet
-	// 	// ここがバリデーション部分
-	// 	if err := c.Bind(&form); err != nil {
-	// 		tweets := funcDB.DbGetAll()
-	// 		c.HTML(http.StatusBadRequest, "index.html", gin.H{"tweets": tweets, "err": err})
-	// 		c.Abort()
-	// 	} else {
-	// 		content := c.PostForm("content")
-	// 		funcDB.DbInsert(content)
-	// 		c.Redirect(302, "/")
-	// 	}
-	// })
-
-	//投稿詳細
-	// router.GET("/detail/:id", func(c *gin.Context) {
-	// 	n := c.Param("id")
-	// 	id, err := strconv.Atoi(n)
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-	// 	tweet := funcDB.DbGetOne(id)
-	// 	c.HTML(200, "detail.html", gin.H{"tweet": tweet})
-	// })
-
-	//更新
-	// router.POST("/update/:id", func(c *gin.Context) {
-	// 	n := c.Param("id")
-	// 	id, err := strconv.Atoi(n)
-	// 	if err != nil {
-	// 		panic("ERROR")
-	// 	}
-	// 	tweet := c.PostForm("tweet")
-	// 	funcDB.DbUpdate(id, tweet)
-	// 	c.Redirect(302, "/")
-	// })
-
-	//削除確認
-	// router.GET("/delete_check/:id", func(c *gin.Context) {
-	// 	n := c.Param("id")
-	// 	id, err := strconv.Atoi(n)
-	// 	if err != nil {
-	// 		panic("ERROR")
-	// 	}
-	// 	tweet := funcDB.DbGetOne(id)
-	// 	c.HTML(200, "delete.html", gin.H{"tweet": tweet})
-	// })
-
-	//削除
-	// router.POST("/delete/:id", func(c *gin.Context) {
-	// 	n := c.Param("id")
-	// 	id, err := strconv.Atoi(n)
-	// 	if err != nil {
-	// 		panic("ERROR")
-	// 	}
-	// 	funcDB.DbDelete(id)
-	// 	c.Redirect(302, "/")
-
-	// })
-
-	// ユーザーログイン画面
-	router.GET("/login", func(c *gin.Context) {
-		c.HTML(200, "login.html", gin.H{})
-	})
-
-	// ユーザーログイン
-	router.POST("/login", func(c *gin.Context) {
-
-		// フォームから取得したユーザーパスワード
-		formPassword := c.PostForm("password")
-		// DBから取得したユーザーパスワード(Hash)
-		formName := c.PostForm("username")
-		dbPassword := funcDB.GetUser(formName).Password
-		dbUserUuid := funcDB.GetUser(formName).UserUUID
-		// ユーザーパスワードの比較
-		if err := plugins.CompareHashAndPassword(dbPassword, formPassword); err != nil {
-			log.Println("login false")
-			c.HTML(http.StatusBadRequest, "login.html", gin.H{"err": "ログインできませんでした。"})
-			c.Abort()
-		} else {
-			log.Println("login success")
-
-			// headerのセット
-			token := jwt.New(jwt.SigningMethodHS256)
-
-			// claimsのセット
-			claims := token.Claims.(jwt.MapClaims)
-			claims["admin"] = true
-			claims["sub"] = dbUserUuid
-			claims["name"] = formName
-			claims["iat"] = time.Now()
-			claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
-
-			// 電子署名
-			tokenString, _ := token.SignedString([]byte(os.Getenv("SIGNINGKEY")))
-
-			session := sessions.Default(c)
-			session.Set("UserJWT", tokenString)
-			session.Set("Uuid", dbUserUuid)
-			fmt.Print(dbUserUuid)
-			session.Save()
-
-			text := encryption.Compress(tokenString)
-
-			funcDB.DbSessionUpdate(dbPassword, text)
-
-			c.Redirect(302, "/user/index")
-		}
-	})
-
-	// ユーザー登録画面
-	router.GET("/signup", func(c *gin.Context) {
-		c.HTML(200, "signup.html", gin.H{})
-	})
-
-	// ユーザー登録
-	router.POST("/signup", func(c *gin.Context) {
-		var form model.User
-		if err := c.Bind(&form); err != nil {
-			log.Print(err)
-			c.HTML(http.StatusBadRequest, "signup.html", gin.H{"err": err})
-			c.Abort()
-		} else {
-			username := c.PostForm("username")
-			password := c.PostForm("password")
-			email := c.PostForm("email")
-			userid := uuid.New().String()
-			session := "NoLogin"
-			formStruct := model.User{
-				Username: username,
-				Password: password,
-				Email:    email,
-				Session:  session,
-			}
-			if ok, err := formStruct.Validate(); !ok {
-				log.Print(err)
-				c.HTML(http.StatusBadRequest, "signup.html", gin.H{"err": err})
-				c.Abort()
-			}
-			if err := funcDB.CreateUser(userid, username, password, email, session); len(err) != 0 {
-				log.Print("同じユーザーが存在します")
-				log.Print(len(err))
-				log.Print(err)
-				c.HTML(http.StatusBadRequest, "signup.html", gin.H{"err": "同じユーザーが存在します"})
-				c.Abort()
-			}
-			c.Redirect(302, "/login")
-		}
-	})
-	router.Run()
-
-	return router
+	return routerGlobal
 }
 
 func sessionCheck() gin.HandlerFunc {
@@ -250,7 +200,7 @@ func sessionCheck() gin.HandlerFunc {
 		// セッションがない場合、ログインフォームをだす
 		if LoginInfo == nil {
 			log.Println("ログインしていません")
-			c.Redirect(http.StatusMovedPermanently, "/login")
+			c.Redirect(http.StatusMovedPermanently, "app/middle_name/login")
 			c.Abort() // これがないと続けて処理されてしまう
 		} else {
 			c.Set("UserJWT", LoginInfo) // ユーザidをセット

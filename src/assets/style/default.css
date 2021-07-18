@@ -5,7 +5,7 @@
 }
 
 main {
-  background-image: url("http://localhost:8080/store/images/bgImage.png");
+  background-image: url("../../store/images/bgImage.png");
   background-attachment: fixed;
   min-height: 100vh;
   background-size: cover;

@@ -5,14 +5,14 @@
     <article>
       <div class="is-mobile">
         <div class="container">
-          <form class="form" action="/login" method="post">
+          <form class="form" action="/app/middle_name/login" method="post">
             <label>Username</label><br>
             <input type="text" name="username" class="input is-info form-group is-rounded" />
             <label>Password</label><br>
             <input type="text" name="password" class="input is-info form-group is-rounded" />
             <input type="submit" value="送信" class="button is-primary">
             <div class="change_page_link">
-              <label>または</label><a href="signup">新規登録</a>
+              <label>または</label><a href="/app/middle_name/signup">新規登録</a>
             </div>
             <p>{{.err}}</p>
           </form>
