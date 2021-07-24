@@ -64,6 +64,7 @@ func NewRouter() *gin.Engine {
 				session := sessions.Default(c)
 				session.Set("UserJWT", tokenString)
 				session.Set("Uuid", dbUserUuid)
+				// session.Options(sessions.Options{Path: "/", MaxAge: -1})
 				session.Save()
 
 				text := encryption.Compress(tokenString)
@@ -110,12 +111,12 @@ func NewRouter() *gin.Engine {
 					c.HTML(http.StatusBadRequest, "signup.html", gin.H{"err": "同じユーザーが存在します"})
 					c.Abort()
 				}
-				c.Redirect(302, "/login")
+				c.Redirect(302, "/app/middle_name/login")
 			}
 		})
 
 		login := router.Group("/user")
-		login.Use(middleware.SessionCheck())
+		login.Use(middleware.LoginCheck())
 		{
 			//一覧
 			login.GET("/index", func(c *gin.Context) {
@@ -157,6 +158,20 @@ func NewRouter() *gin.Engine {
 					database.DbMiddleNameInsert(mr, lName, surName, commonName, fName, userId)
 					c.Redirect(302, "/app/middle_name/user/index")
 				}
+			})
+
+			login.GET("/logout", func(c *gin.Context) {
+				c.HTML(200, "logout.html", gin.H{})
+			})
+
+			login.POST("/logout", func(c *gin.Context) {
+				err := middleware.Logout(c)
+				print(err)
+				if err != nil {
+					c.HTML(http.StatusBadRequest, "user/logout.html", gin.H{"err": "ログアウトできませんでした。もう一度お試しください！"})
+					c.Abort()
+				}
+				c.Redirect(302, "/app/middle_name/")
 			})
 
 		}

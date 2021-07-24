@@ -91,7 +91,6 @@ func DbGetCreatedMiddleNames(userId string) []model.CreatedMiddleNames {
 	var createdMiddleNames []model.CreatedMiddleNames
 
 	db.Where("user_id =  ?", userId).Find(&createdMiddleNames)
-	print(fmt.Sprintf("%v", createdMiddleNames))
 	return createdMiddleNames
 }
 

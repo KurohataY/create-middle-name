@@ -1,11 +1,14 @@
 package middleware
 
 import (
+	"log"
+	"net/http"
 	"os"
 	"time"
 
-	jwtmiddleware "github.com/auth0/go-jwt-middleware"
 	jwt "github.com/form3tech-oss/jwt-go"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
 )
 
 // GetTokenHandler get token
@@ -28,10 +31,32 @@ func GetTokenHandler(dbUserUuid string, formName string) (string, error) {
 
 }
 
-// JwtMiddleware check token
-var JwtMiddleware = jwtmiddleware.New(jwtmiddleware.Options{
-	ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("SIGNINGKEY")), nil
-	},
-	SigningMethod: jwt.SigningMethodHS256,
-})
+var LoginInfo interface{}
+
+func LoginCheck() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		session := sessions.Default(c)
+		LoginInfo = session.Get("UserJWT")
+
+		if LoginInfo == nil {
+			log.Println("ログインしていません")
+			c.Redirect(http.StatusMovedPermanently, "/app/middle_name/login")
+			c.Abort()
+		} else {
+			c.Set("UserJWT", LoginInfo)
+			c.Next()
+		}
+		log.Println("ログインチェック終わり")
+	}
+}
+
+func Logout(c *gin.Context) error {
+	session := sessions.Default(c)
+	// session.Delete("UserJWT")
+	// session.Delete("Uuid")
+	session.Clear()
+	session.Options(sessions.Options{Path: "/", MaxAge: -1})
+	err := session.Save()
+	return err
+}
