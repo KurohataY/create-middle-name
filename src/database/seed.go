@@ -1,4 +1,4 @@
-package funcDB
+package database
 
 import (
 	"example.com/m/v2/model"

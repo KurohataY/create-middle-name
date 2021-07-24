@@ -1,4 +1,4 @@
-package funcDB
+package database
 
 import (
 	"fmt"
@@ -41,7 +41,7 @@ func gormConnect() *gorm.DB {
 }
 
 // DBの初期化
-func DbInit() {
+func Init() {
 	db := gormConnect()
 
 	// コネクション解放解放

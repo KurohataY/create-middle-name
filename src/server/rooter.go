@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
+	"example.com/m/v2/database"
 	"example.com/m/v2/function/encryption"
-	"example.com/m/v2/function/funcDB"
 	"example.com/m/v2/model"
 	plugins "example.com/m/v2/plugins/crypto"
 	"github.com/form3tech-oss/jwt-go"
@@ -44,9 +44,9 @@ func NewRouter() *gin.Engine {
 			login.GET("/index", func(c *gin.Context) {
 				session := sessions.Default(c)
 				userId := fmt.Sprintf("%v", session.Get("Uuid"))
-				getUser := funcDB.GetUserFromUuid(userId)
+				getUser := database.GetUserFromUuid(userId)
 
-				middleNames := funcDB.DbGetCreatedMiddleNames(userId)
+				middleNames := database.DbGetCreatedMiddleNames(userId)
 
 				c.HTML(http.StatusOK, "index.html", gin.H{
 					"name":   getUser.Username,
@@ -67,17 +67,17 @@ func NewRouter() *gin.Engine {
 				var form model.CreatedMiddleNames
 				// ここがバリデーション部分
 				if err := c.Bind(&form); err != nil {
-					middleNames := funcDB.DbGetCreatedMiddleNames(userId)
+					middleNames := database.DbGetCreatedMiddleNames(userId)
 					c.HTML(http.StatusBadRequest, "create.html", gin.H{"middleNames": middleNames, "err": err})
 					c.Abort()
 				} else {
-					mr := funcDB.DBGetRandomMrData().Mr
+					mr := database.DBGetRandomMrData().Mr
 					lName := c.PostForm("lname")
-					surName := funcDB.DBGetRandomMrData().Mr
-					commonName := funcDB.DBGetRandomMrData().Mr
+					surName := database.DBGetRandomMrData().Mr
+					commonName := database.DBGetRandomMrData().Mr
 					fName := c.PostForm("fname")
 
-					funcDB.DbMiddleNameInsert(mr, lName, surName, commonName, fName, userId)
+					database.DbMiddleNameInsert(mr, lName, surName, commonName, fName, userId)
 					c.Redirect(302, "/app/middle_name/user/index")
 				}
 			})
@@ -96,8 +96,8 @@ func NewRouter() *gin.Engine {
 
 			formPassword := c.PostForm("password")
 			formName := c.PostForm("username")
-			dbPassword := funcDB.GetUser(formName).Password
-			dbUserUuid := funcDB.GetUser(formName).UserUUID
+			dbPassword := database.GetUser(formName).Password
+			dbUserUuid := database.GetUser(formName).UserUUID
 
 			if err := plugins.CompareHashAndPassword(dbPassword, formPassword); err != nil {
 				log.Println("login false")
@@ -127,7 +127,7 @@ func NewRouter() *gin.Engine {
 
 				text := encryption.Compress(tokenString)
 
-				funcDB.DbSessionUpdate(dbPassword, text)
+				database.DbSessionUpdate(dbPassword, text)
 
 				c.Redirect(302, "/app/middle_name/user/index")
 			}
@@ -162,7 +162,7 @@ func NewRouter() *gin.Engine {
 					c.HTML(http.StatusBadRequest, "signup.html", gin.H{"err": err})
 					c.Abort()
 				}
-				if err := funcDB.CreateUser(userid, username, password, email, session); len(err) != 0 {
+				if err := database.CreateUser(userid, username, password, email, session); len(err) != 0 {
 					log.Print("同じユーザーが存在します")
 					log.Print(len(err))
 					log.Print(err)

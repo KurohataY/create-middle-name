@@ -2,6 +2,7 @@ FROM golang:1.16.3-alpine3.13
 
 ARG GCC_VERSION="10.2.0"
 ENV GCC_VERSION=${GCC_VERSION}
+ENV LC_ALL="C"
 
 COPY ./src /src
 
