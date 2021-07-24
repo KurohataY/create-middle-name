@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"example.com/m/v2/middleware"
 	"example.com/m/v2/model"
-	plugins "example.com/m/v2/plugins/crypto"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"github.com/joho/godotenv"
@@ -78,7 +78,7 @@ func DbSessionUpdate(password string, session string) {
 	db := gormConnect()
 	var user model.User
 	db.Where("password = ?", password).First(&user)
-	user.Session, _ = plugins.PasswordEncrypt(session)
+	user.Session, _ = middleware.PasswordEncrypt(session)
 	db.Where("password = ?", password).Save(&user)
 	db.Close()
 }
@@ -128,7 +128,7 @@ func DBGetRandomMrData() model.Mr {
 
 // ユーザー登録処理
 func CreateUser(userid string, username string, password string, email string, session string) []error {
-	passwordEncrypt, _ := plugins.PasswordEncrypt(password)
+	passwordEncrypt, _ := middleware.PasswordEncrypt(password)
 	db := gormConnect()
 	defer db.Close()
 	// Insert処理

@@ -9,8 +9,8 @@ import (
 
 	"example.com/m/v2/database"
 	"example.com/m/v2/function/encryption"
+	"example.com/m/v2/middleware"
 	"example.com/m/v2/model"
-	plugins "example.com/m/v2/plugins/crypto"
 	"github.com/form3tech-oss/jwt-go"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -27,7 +27,6 @@ func NewRouter() *gin.Engine {
 	routerGlobal := gin.Default()
 
 	routerGlobal.LoadHTMLGlob("views/*.html")
-	// router.LoadHTMLGlob("views/user/*.html")
 
 	router := routerGlobal.Group("app/middle_name")
 	{
@@ -99,7 +98,7 @@ func NewRouter() *gin.Engine {
 			dbPassword := database.GetUser(formName).Password
 			dbUserUuid := database.GetUser(formName).UserUUID
 
-			if err := plugins.CompareHashAndPassword(dbPassword, formPassword); err != nil {
+			if err := middleware.CompareHashAndPassword(dbPassword, formPassword); err != nil {
 				log.Println("login false")
 				c.HTML(http.StatusBadRequest, "login.html", gin.H{"err": "ログインできませんでした。"})
 				c.Abort()
@@ -187,13 +186,12 @@ func sessionCheck() gin.HandlerFunc {
 		session := sessions.Default(c)
 		LoginInfo = session.Get("UserJWT")
 
-		// セッションがない場合、ログインフォームをだす
 		if LoginInfo == nil {
 			log.Println("ログインしていません")
 			c.Redirect(http.StatusMovedPermanently, "app/middle_name/login")
-			c.Abort() // これがないと続けて処理されてしまう
+			c.Abort()
 		} else {
-			c.Set("UserJWT", LoginInfo) // ユーザidをセット
+			c.Set("UserJWT", LoginInfo)
 			c.Next()
 		}
 		log.Println("ログインチェック終わり")
