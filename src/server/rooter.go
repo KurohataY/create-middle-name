@@ -118,7 +118,7 @@ func NewRouter() *gin.Engine {
 		login := router.Group("/user")
 		login.Use(middleware.LoginCheck())
 		{
-			//一覧
+			//ログイン後
 			login.GET("/index", func(c *gin.Context) {
 				session := sessions.Default(c)
 				userId := fmt.Sprintf("%v", session.Get("Uuid"))
@@ -132,7 +132,20 @@ func NewRouter() *gin.Engine {
 				})
 			})
 
-			// ユーザー登録画面
+			//一覧
+			login.GET("/history", func(c *gin.Context) {
+				session := sessions.Default(c)
+				userId := fmt.Sprintf("%v", session.Get("Uuid"))
+				getUser := database.GetUserFromUuid(userId)
+
+				middleNames := database.DbGetCreatedMiddleNames(userId)
+
+				c.HTML(http.StatusOK, "history.html", gin.H{
+					"name":   getUser.Username,
+					"middle": middleNames,
+				})
+			})
+
 			login.GET("/create", func(c *gin.Context) {
 				c.HTML(200, "create.html", gin.H{})
 			})
@@ -151,13 +164,22 @@ func NewRouter() *gin.Engine {
 				} else {
 					mr := database.DBGetRandomMrData().Mr
 					lName := c.PostForm("lname")
-					surName := database.DBGetRandomMrData().Mr
-					commonName := database.DBGetRandomMrData().Mr
+					surName := database.DBGetRandomSNData().SurName
+					commonName := database.DBGetRandomCNData().CommonName
 					fName := c.PostForm("fname")
 
 					database.DbMiddleNameInsert(mr, lName, surName, commonName, fName, userId)
-					c.Redirect(302, "/app/middle_name/user/index")
+					c.Redirect(302, "/app/middle_name/user/result")
 				}
+			})
+
+			login.GET("/result", func(c *gin.Context) {
+				session := sessions.Default(c)
+				userId := fmt.Sprintf("%v", session.Get("Uuid"))
+				middleName := database.DbMiddleNameLastFind(userId)
+				c.HTML(200, "result.html", gin.H{
+					"middleName": middleName,
+				})
 			})
 
 			login.GET("/logout", func(c *gin.Context) {
