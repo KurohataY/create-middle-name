@@ -1,0 +1,48 @@
+{{ template "head" }}
+<body>
+  {{ template "user_nav" }}
+  <main>
+    <div class="body" style="margin-top: 60px;">
+>
+        <p class="title text-color is-3" style="text-align: center;margin-top: 60px;">今までの作成履歴はこちら！</p>
+        
+        <table class="table" style="text-align: center; margin: 0 auto; width: 80vw">
+          <thead>
+            <tr>
+              <th><abbr title="Position">ID</abbr></th>
+              <th>氏</th>
+              <th><abbr title="Played">名前</abbr></th>
+              <th><abbr title="Won">カバネ</abbr></th>
+              <th><abbr title="Drawn">俗名</abbr></th>
+              <th><abbr title="Lost">名字</abbr></th>
+            </tr>
+          </thead>
+          <tfoot>
+            <tr>
+              <th><abbr title="Position">ID</abbr></th>
+              <th>氏</th>
+              <th><abbr title="Played">名前</abbr></th>
+              <th><abbr title="Won">カバネ</abbr></th>
+              <th><abbr title="Drawn">俗名</abbr></th>
+              <th><abbr title="Lost">名字</abbr></th>
+            </tr>
+          </tfoot>
+          {{range .middle}}
+              <tbody>
+                <tr>
+                  <th>{{.ID}}</th>
+                  <th>{{.Mr}}</th>
+                  <th>{{.LName}}</th>
+                  <th>{{.SurName}}</th>
+                  <th>{{.CommonName}}</th>
+                  <th>{{.FName}}</th>
+                </tr>
+              </tbody>
+          {{end}}
+        </table>
+      </div>
+    </div>
+  </main>
+  {{ template "footer" }}
+</body>
+{{ template "foot" }}
