@@ -1,0 +1,20 @@
+{{ template "head" }}
+
+<body>
+    {{ template "user_nav" }}
+    <main>
+        <div class="body" style="margin-top: 60px;">
+            {{range .middleName}}
+
+            <div>{{.Mr}}</div>
+            <div>{{.LName}}</div>
+            <div>{{.SurName}}</div>
+            <div>{{.CommonName}}</div>
+            <div>{{.FName}}</div>
+
+            {{end}}
+        </div>
+    </main>
+    {{ template "footer" }}
+</body>
+{{ template "foot" }}
