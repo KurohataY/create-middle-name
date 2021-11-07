@@ -73,6 +73,13 @@ func DbMiddleNameInsert(mr string, lName string, sName string, cName string, fNa
 	return nil
 }
 
+func DbMiddleNameLastFind(userId string) []model.CreatedMiddleNames {
+	db := gormConnect()
+	var createdMiddleNames []model.CreatedMiddleNames
+	db.Where("user_id =  ?", userId).Last(&createdMiddleNames)
+	return createdMiddleNames
+}
+
 //DB更新
 func DbSessionUpdate(password string, session string) {
 	db := gormConnect()
@@ -105,6 +112,30 @@ func DBGetRandomMrData() model.Mr {
 	// SELECT * FROM users ORDER BY age desc, name;
 
 	return mr
+}
+func DBGetRandomSNData() model.SN {
+	db := gormConnect()
+
+	defer db.Close()
+	var sn model.SN
+	// db.Raw("SELECT * FROM mrs ORDER BY RAND() LIMIT 1").Find(&mr)
+	// db.Limit(1).Offset(5).Find(&users)
+	db.Order("RAND()").Find(&sn)
+	// SELECT * FROM users ORDER BY age desc, name;
+
+	return sn
+}
+func DBGetRandomCNData() model.CN {
+	db := gormConnect()
+
+	defer db.Close()
+	var cn model.CN
+	// db.Raw("SELECT * FROM mrs ORDER BY RAND() LIMIT 1").Find(&mr)
+	// db.Limit(1).Offset(5).Find(&users)
+	db.Order("RAND()").Find(&cn)
+	// SELECT * FROM users ORDER BY age desc, name;
+
+	return cn
 }
 
 // //DB一つ取得
