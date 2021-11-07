@@ -1,54 +1,39 @@
 {{ template "head" }}
+
 <body>
   {{ template "user_nav" }}
   <main>
     <div class="body" style="margin-top: 60px;">
-      <div class="tile">
-        <div class="tile is-parent is-vertical ">
-          <article class="tile is-child notification text-center is-6">
-            <p class="title">{{.name}}</p>
-            <p class="subtitle">今日は何をされますか？<br>メニューバー からお選びください！</p>
-          </article>
+      <div data-animate="bounce" class="animated text-area" style="margin-top: 0 !important;">
+        <div class="card text-box" style="margin-top: 25vh;width: 40% !important;">
+          <div class="card-content">
+            <div class="media">
+              <div class="media-content">
+                <p class="title is-4">MiddleName作成画面へ！</p>
+              </div>
+            </div>
+            <div class="content">
+              下のボタンよりミドルネーム作成位画面に移動できます！
+              <br>
+            </div>
+            <a class="button is-primary is-rounded" href="/app/middle_name/user/create">ミドルネーム作成</a>
+          </div>
         </div>
-      </div>
-
-      <div class="text-center">
-        <p class="subtitle text-color is-3">今までの作成履歴はこちら！</p>
-        
-        <table class="table" style="text-align: center; margin: 0 auto; width: 80vw">
-          <thead>
-            <tr>
-              <th><abbr title="Position">ID</abbr></th>
-              <th>氏</th>
-              <th><abbr title="Played">名前</abbr></th>
-              <th><abbr title="Won">カバネ</abbr></th>
-              <th><abbr title="Drawn">俗名</abbr></th>
-              <th><abbr title="Lost">名字</abbr></th>
-            </tr>
-          </thead>
-          <tfoot>
-            <tr>
-              <th><abbr title="Position">ID</abbr></th>
-              <th>氏</th>
-              <th><abbr title="Played">名前</abbr></th>
-              <th><abbr title="Won">カバネ</abbr></th>
-              <th><abbr title="Drawn">俗名</abbr></th>
-              <th><abbr title="Lost">名字</abbr></th>
-            </tr>
-          </tfoot>
-          {{range .middle}}
-              <tbody>
-                <tr>
-                  <th>{{.ID}}</th>
-                  <th>{{.Mr}}</th>
-                  <th>{{.LName}}</th>
-                  <th>{{.SurName}}</th>
-                  <th>{{.CommonName}}</th>
-                  <th>{{.FName}}</th>
-                </tr>
-              </tbody>
-          {{end}}
-        </table>
+        <div class="card text-box" style="margin-top: 25vh;width: 40% !important;">
+          <div class="card-content">
+            <div class="media">
+              <div class="media-content">
+                <p class="title is-4">作成履歴画面へ！</p>
+              </div>
+            </div>
+            <div class="content">
+              これまで作成してきた履歴が見れます！
+              <br>
+              <br>
+            </div>
+            <a class="button is-primary is-rounded" href="/app/middle_name/user/history">作成履歴</a>
+          </div>
+        </div>
       </div>
     </div>
   </main>
