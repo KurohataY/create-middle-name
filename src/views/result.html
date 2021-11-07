@@ -4,15 +4,31 @@
     {{ template "user_nav" }}
     <main>
         <div class="body" style="margin-top: 60px;">
-            {{range .middleName}}
+            <div data-animate="bounce" class="animated text-area" style="margin-top: 0 !important;">
+                <div class="card text-box" style="text-align:center;width: 70% !important;position: fixed;top: 50%;left: 50%;transform: translate(-50%, -50%);">
+                    <div class="card-content">
+                        <div class="media">
+                            <div class="media-content">
+                                <p class="title is-4" style="text-align:center;">ミドルネーム作成結果！</p>
+                            </div>
+                        </div>
+                        <div class="content">
+                            {{range .middleName}}
 
-            <div>{{.Mr}}</div>
-            <div>{{.LName}}</div>
-            <div>{{.SurName}}</div>
-            <div>{{.CommonName}}</div>
-            <div>{{.FName}}</div>
+                            <span style="font-size:50px;font-family: 'Rampart One', cursive;">{{.Mr}}</span>
+                            <span style="font-size:50px;font-family: 'Rampart One', cursive;">{{.LName}}</span>
+                            <span style="font-size:50px;font-family: 'Rampart One', cursive;">{{.SurName}}</span>
+                            <span style="font-size:50px;font-family: 'Rampart One', cursive;">{{.CommonName}}</span>
+                            <span style="font-size:50px;font-family: 'Rampart One', cursive;">{{.FName}}</span>
 
-            {{end}}
+                            {{end}}
+                            <br>
+                        </div>
+                        <a class="button is-primary is-rounded" href="/app/middle_name/user/create">ミドルネーム再作成</a>
+                        <a class="button is-primary is-rounded" href="/app/middle_name/user/history">作成履歴</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
     {{ template "footer" }}
